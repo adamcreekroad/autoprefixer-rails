@@ -11,6 +11,12 @@ module AutoprefixerRails
   class Processor
     SUPPORTED_RUNTIMES = [ExecJS::Runtimes::Node, ExecJS::Runtimes::MiniRacer]
 
+    JS = begin
+      root = Pathname(File.dirname(__FILE__))
+      path = root.join("../../vendor/autoprefixer.js")
+      path.read
+    end.freeze
+
     def initialize(params = {})
       @params = params || {}
     end
@@ -130,7 +136,7 @@ module AutoprefixerRails
     # Lazy load for JS library
     def runtime
       @runtime ||= begin
-        ExecJS.compile(build_js)
+        ExecJS.compile(JS)
       rescue ExecJS::RuntimeError
         # Only complain about unsupported runtimes when it failed to parse our script.
 
@@ -154,12 +160,6 @@ module AutoprefixerRails
           MSG
         end
       end
-    end
-
-    def build_js
-      root = Pathname(File.dirname(__FILE__))
-      path = root.join("../../vendor/autoprefixer.js")
-      path.read
     end
   end
 end
